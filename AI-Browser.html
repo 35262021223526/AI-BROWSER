@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101421">
+  <link rel="icon" type="image/svg+xml" href="AI-Browser-Logo.svg">
+  <title>Nova AI Browser</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101421;
+      --panel: #191f30;
+      --panel-soft: #20283b;
+      --line: #30394f;
+      --muted: #a8b1c7;
+      --text: #f4f6ff;
+      --blue: #8ba8ff;
+      --violet: #c3a0ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% 18%, #293153 0, transparent 38rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 "Segoe UI", system-ui, sans-serif;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; cursor: pointer; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      height: 58px; padding: 0 22px; display: flex; align-items: center;
+      gap: 16px; border-bottom: 1px solid #ffffff12; background: #101421cc;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: .2px; }
+    .brand img { width: 31px; height: 31px; }
+    .tab { margin-left: 28px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 9px 9px 0 0; color: #dce2f2; background: #1a2030; }
+    .window-actions { margin-left: auto; display: flex; gap: 8px; }
+    .icon-button {
+      width: 35px; height: 35px; display: grid; place-items: center;
+      border: 0; border-radius: 10px; background: transparent; color: var(--muted);
+    }
+    .icon-button:hover { background: #ffffff10; color: white; }
+    .toolbar { display: flex; gap: 8px; align-items: center; padding: 11px 20px; border-bottom: 1px solid #ffffff12; }
+    .nav-button { border: 0; background: transparent; color: #b8c1d7; font-size: 20px; width: 34px; height: 34px; border-radius: 50%; }
+    .nav-button:hover { background: #ffffff12; }
+    .address {
+      flex: 1; display: flex; align-items: center; gap: 9px; height: 40px;
+      border: 1px solid var(--line); border-radius: 13px; background: #1a2030; padding: 0 14px;
+    }
+    .address input { flex: 1; min-width: 0; color: var(--text); outline: 0; border: 0; background: transparent; }
+    .address input::placeholder { color: #929cb3; }
+    .secure { color: #82d8bd; font-size: 13px; }
+    .toolbar .ai-button, .primary-button {
+      border: 0; border-radius: 11px; padding: 10px 15px; color: #101421; font-weight: 650;
+      background: linear-gradient(120deg, #a7c1ff, #d0aaff);
+    }
+    .layout { width: min(1140px, 100%); margin: auto; padding: 66px 26px 48px; flex: 1; }
+    .hero { max-width: 720px; margin: 0 auto; text-align: center; }
+    .hero-logo { width: 84px; height: 84px; filter: drop-shadow(0 12px 30px #92aaff44); }
+    .eyebrow { color: #bca8ff; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 13px 0 7px; }
+    h1 { margin: 0; font-size: clamp(34px, 5vw, 49px); line-height: 1.12; letter-spacing: -1.6px; }
+    .subtitle { margin: 15px 0 27px; color: var(--muted); font-size: 16px; }
+    .search {
+      display: flex; align-items: center; gap: 12px; max-width: 690px; margin: 0 auto;
+      padding: 8px 9px 8px 18px; border: 1px solid #515b79; border-radius: 17px;
+      background: #1b2233; box-shadow: 0 15px 55px #0004;
+    }
+    .search-icon { color: #aeb9d2; font-size: 20px; }
+    .search input { flex: 1; min-width: 0; height: 43px; color: var(--text); border: 0; outline: 0; background: transparent; }
+    .search input::placeholder { color: #8f9ab3; }
+    .shortcuts { display: flex; justify-content: center; flex-wrap: wrap; gap: 13px; margin: 26px 0 58px; }
+    .shortcut { display: flex; align-items: center; gap: 9px; padding: 10px 15px; border: 1px solid #ffffff12; border-radius: 13px; background: #ffffff08; color: #dbe1ef; }
+    .shortcut:hover { border-color: #9daeff80; background: #ffffff10; }
+    .shortcut span:first-child { font-size: 18px; }
+    .section-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    h2 { font-size: 16px; margin: 0; font-weight: 650; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .card { padding: 19px; border: 1px solid #ffffff12; border-radius: 15px; background: #ffffff08; }
+    .card-icon { font-size: 21px; }
+    .card h3 { margin: 10px 0 5px; font-size: 15px; }
+    .card p { margin: 0; color: var(--muted); font-size: 13px; }
+    .status { margin: 22px 0 0; color: #8590aa; font-size: 12px; text-align: center; }
+    .toast {
+      position: fixed; left: 50%; bottom: 25px; transform: translate(-50%, 20px);
+      opacity: 0; pointer-events: none; border: 1px solid var(--line); border-radius: 12px;
+      padding: 11px 16px; background: #20283b; color: var(--text); transition: .2s;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+    @media (max-width: 680px) {
+      .topbar { padding: 0 13px; } .tab { margin-left: 0; }
+      .toolbar { padding: 9px 10px; gap: 4px; } .toolbar .ai-button { padding: 9px 10px; }
+      .layout { padding: 48px 17px 34px; } .cards { grid-template-columns: 1fr; }
+      .shortcuts { margin-bottom: 39px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><img src="AI-Browser-Logo.svg" alt="Nova AI Browser logo"><span>Nova AI Browser</span></div>
+      <div class="tab">✦ &nbsp; New tab</div>
+      <div class="window-actions"><button class="icon-button" aria-label="New tab" title="New tab">＋</button><button class="icon-button" aria-label="Menu" title="Menu">⋯</button></div>
+    </header>
+    <nav class="toolbar" aria-label="Browser controls">
+      <button class="nav-button" id="back" title="Back" aria-label="Back">‹</button>
+      <button class="nav-button" id="forward" title="Forward" aria-label="Forward">›</button>
+      <button class="nav-button" id="reload" title="Reload" aria-label="Reload">↻</button>
+      <form class="address" id="address-form"><span class="secure">◈</span><input id="address" aria-label="Address or search" placeholder="Search the web or enter an address"><button class="icon-button" aria-label="Go" title="Go">↵</button></form>
+      <button class="ai-button" id="open-ai">✦ &nbsp; Ask AI</button>
+    </nav>
+    <main class="layout">
+      <section class="hero">
+        <img class="hero-logo" src="AI-Browser-Logo.svg" alt="Nova Browser logo">
+        <p class="eyebrow">AI-powered browsing, beautifully simple</p>
+        <h1>What can we find<br>for you today?</h1>
+        <p class="subtitle">Search the web, explore ideas, and keep your next question close.</p>
+        <form class="search" id="search-form"><span class="search-icon">⌕</span><input id="query" aria-label="Search the web" placeholder="Search anything on the web..." autocomplete="off"><button class="primary-button">Search</button></form>
+        <div class="shortcuts">
+          <button class="shortcut" data-search="weather today"><span>☼</span><span>Weather</span></button>
+          <button class="shortcut" data-search="latest technology news"><span>◉</span><span>Tech news</span></button>
+          <button class="shortcut" data-search="learn something new"><span>✧</span><span>Explore</span></button>
+        </div>
+      </section>
+      <section>
+        <div class="section-heading"><h2>Make the most of your browser</h2><span class="muted">Your space to explore</span></div>
+        <div class="cards">
+          <article class="card"><span class="card-icon">⌕</span><h3>Search at your speed</h3><p>Type a question or web address in the bar to get started.</p></article>
+          <article class="card"><span class="card-icon">✦</span><h3>Meet your AI companion</h3><p>Open Copilot to ask questions and continue exploring with AI.</p></article>
+          <article class="card"><span class="card-icon">↗</span><h3>Pick up anywhere</h3><p>Your searches open in a new browser tab, keeping this start page ready.</p></article>
+        </div>
+      </section>
+      <p class="status">Nova is a browser starter prototype. AI chat opens Microsoft Copilot; no AI provider or account is built in.</p>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const toast = document.querySelector("#toast");
+    let toastTimer;
+    function notify(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+    function searchWeb(value) {
+      const query = value.trim();
+      if (!query) {
+        notify("Enter a search or web address first.");
+        return;
+      }
+      const url = /^https?:\/\//i.test(query)
+        ? query
+        : /^[\w-]+(\.[\w-]+)+([/?#].*)?$/i.test(query)
+          ? `https://${query}`
+          : `https://www.bing.com/search?q=${encodeURIComponent(query)}`;
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+    document.querySelector("#search-form").addEventListener("submit", event => {
+      event.preventDefault();
+      searchWeb(document.querySelector("#query").value);
+    });
+    document.querySelector("#address-form").addEventListener("submit", event => {
+      event.preventDefault();
+      searchWeb(document.querySelector("#address").value);
+    });
+    document.querySelectorAll("[data-search]").forEach(button => {
+      button.addEventListener("click", () => searchWeb(button.dataset.search));
+    });
+    document.querySelector("#open-ai").addEventListener("click", () => {
+      window.open("https://copilot.microsoft.com/", "_blank", "noopener,noreferrer");
+    });
+    document.querySelectorAll(".icon-button[aria-label='New tab']").forEach(button => {
+      button.addEventListener("click", () => document.querySelector("#query").focus());
+    });
+    document.querySelector(".icon-button[aria-label='Menu']").addEventListener("click", () => {
+      notify("Nova Browser starter prototype");
+    });
+    document.querySelector("#back").addEventListener("click", () => history.back());
+    document.querySelector("#forward").addEventListener("click", () => history.forward());
+    document.querySelector("#reload").addEventListener("click", () => location.reload());
+  </script>
+</body>
+</html>
